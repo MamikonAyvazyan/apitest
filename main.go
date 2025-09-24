@@ -4,11 +4,12 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"bufio"
 	"log"
 
-	"github.com/MamikonAyvazyan/apitest/internal/config"
+	"io"
 	"net/http"
+
+	"github.com/MamikonAyvazyan/apitest/internal/config"
 )
 
 func main() {
@@ -28,18 +29,21 @@ func main() {
 	body, _ := json.Marshal(payload)
 	resp, err := http.Post(config.Conf.Llmserver.URL, "application/json", bytes.NewBuffer(body))
 	if err != nil {
-		panic(err)
+		log.Fatal(err)
 	}
 	defer resp.Body.Close()
 
-	respBody := bufio.NewReader(resp.Body)
+	respBody, err := io.ReadAll(resp.Body)
 
-	respStruct := struct{
-		Status int
-		Message string
+	respStruct := struct {
+		Status  int    `json:"status"`
+		Message string `json:"message"`
 	}{}
 
-	json.Unmarshal(respBody, &respStruct)
+	err = json.Unmarshal(respBody, &respStruct)
+	if err != nil {
+		log.Fatal(err)
+	}
+	fmt.Printf("%+v\n", respStruct)
 
-	fmt.Println(respStruct.Status)
 }
