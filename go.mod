@@ -1,4 +1,4 @@
-module myapp
+module github.com/MamikonAyvazyan/apitest
 
 go 1.24.7
 

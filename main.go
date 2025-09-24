@@ -4,10 +4,10 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"io"
+	"bufio"
 	"log"
 
-	"myapp/internal/config"
+	"github.com/MamikonAyvazyan/apitest/internal/config"
 	"net/http"
 )
 
@@ -32,12 +32,14 @@ func main() {
 	}
 	defer resp.Body.Close()
 
-	respBody, _ := io.ReadAll(resp.Body)
-	response := string(respBody)
+	respBody := bufio.NewReader(resp.Body)
 
-	var respText interface{}
+	respStruct := struct{
+		Status int
+		Message string
+	}{}
 
-	json.Unmarshal([]byte(response), &respText)
+	json.Unmarshal(respBody, &respStruct)
 
-	fmt.Println(respText)
+	fmt.Println(respStruct.Status)
 }
